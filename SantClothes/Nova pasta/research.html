@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pesquisa de Produtos</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        #searchBox {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #007bff;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .product-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .product-card.hidden {
+            display: none;
+        }
+
+        .product-name {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .product-category {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Campo de pesquisa -->
+    <input type="text" 
+           id="searchBox" 
+           placeholder="Pesquisar produtos...">
+
+    <!-- Lista de produtos -->
+    <div class="product-list" id="productContainer">
+        <!-- Produtos serão inseridos aqui via JavaScript -->
+    </div>
+
+    <script>
+        // Dados dos produtos
+        const produtos = [
+            { 
+                nome: "Notebook Gamer", 
+                preco: 5499.99, 
+                categoria: "eletrônicos",
+                descricao: "Processador i7, 16GB RAM, RTX 3060"
+            },
+            { 
+                nome: "Smartphone Android", 
+                preco: 1999.90, 
+                categoria: "celulares",
+                descricao: "Tela 6.5'', 128GB, 5G"
+            },
+            { 
+                nome: "Camisa Polo Masculina", 
+                preco: 129.90, 
+                categoria: "vestuário",
+                descricao: "Algodão, várias cores"
+            },
+            { 
+                nome: "Fone Bluetooth", 
+                preco: 299.90, 
+                categoria: "acessórios",
+                descricao: "Cancelamento de ruído"
+            },
+            { 
+                nome: "Smart TV 50 Polegadas", 
+                preco: 2899.00, 
+                categoria: "eletrônicos",
+                descricao: "4K UHD, Android TV"
+            }
+        ];
+
+        // Função para criar os cards de produto
+        function criarCards() {
+            const container = document.getElementById('productContainer');
+            
+            produtos.forEach(produto => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-name">${produto.nome}</div>
+                    <div class="product-price">R$ ${produto.preco.toFixed(2)}</div>
+                    <div class="product-description">${produto.descricao}</div>
+                    <div class="product-category">${produto.categoria}</div>
+                `;
+                
+                // Adiciona atributos para busca
+                card.dataset.name = produto.nome.toLowerCase();
+                card.dataset.category = produto.categoria.toLowerCase();
+                card.dataset.description = produto.descricao.toLowerCase();
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Função de pesquisa
+        function pesquisarProdutos(termo) {
+            const cards = document.querySelectorAll('.product-card');
+            const termoLower = termo.toLowerCase().trim();
+
+            cards.forEach(card => {
+                const textContent = [
+                    card.dataset.name,
+                    card.dataset.category,
+                    card.dataset.description
+                ].join(' ');
+
+                card.classList.toggle('hidden', !textContent.includes(termoLower));
+            });
+        }
+
+        // Event listeners
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            pesquisarProdutos(e.target.value);
+        });
+
+        // Inicialização
+        window.addEventListener('DOMContentLoaded', criarCards);
+    </script>
+</body>
+</html>
