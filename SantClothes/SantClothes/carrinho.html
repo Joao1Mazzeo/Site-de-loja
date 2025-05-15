@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrinho - SantClothes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Scripts globais de produtos e carrinho -->
+  <script src="js/produto.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="carrinho.html" class="text-black font-bold underline">Carrinho <span id="cart-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-10 px-4">
+    <div id="lista-carrinho" class="space-y-4"></div>
+
+    <div class="mt-10 border-t pt-6">
+      <div class="mb-4">
+        <label for="cupom" class="block text-sm font-medium">Possui cupom de desconto?</label>
+        <div class="flex mt-2 gap-2">
+          <input type="text" id="cupom" class="border px-4 py-2 rounded w-full" placeholder="Ex: SANT10" />
+          <button onclick="aplicarCupomDigitado()" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">Aplicar</button>
+        </div>
+        <p id="cupom-info" class="text-sm mt-2 text-green-600"></p>
+      </div>
+
+      <div class="text-right text-lg font-semibold mt-6">
+        Subtotal: R$ <span id="subtotal">0.00</span><br />
+        Frete: R$ <span id="frete">15.00</span><br />
+        <span class="text-xl">Total: R$ <span id="total">0.00</span></span>
+      </div>
+
+      <div class="text-right mt-6">
+        <a href="checkout.html" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">Finalizar Compra</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-200 py-6 mt-10 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Header dinâmico
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (menu) {
+        menu.innerHTML = user
+          ? `
+            <span class="text-gray-700">Olá, ${user.nome.split(' ')[0]}</span>
+            <a href="#" onclick="logout()" class="text-red-600 hover:underline ml-2">Sair</a>`
+          : `
+            <a href="login.html" class="text-gray-700 hover:text-black">Login</a>
+            <a href="cadastro.html" class="text-gray-700 hover:text-black">Cadastro</a>`;
+      }
+
+      // Atualiza contador e renderiza carrinho
+      atualizarContador();
+      renderCarrinho(produtos);
+    });
+
+    function aplicarCupomDigitado() {
+      const input = document.getElementById('cupom').value.trim().toUpperCase();
+      aplicarCupom(input);
+    }
+
+    function logout() {
+      localStorage.removeItem('usuario_logado');
+      window.location.reload();
+    }
+  </script>
+
+</body>
+</html>

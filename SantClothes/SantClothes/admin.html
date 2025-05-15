@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Cadastro de Produtos</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Badge de carrinho e wishlist -->
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Header padrão -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes Admin</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">Wishlist <span id="wishlist-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-6">Cadastrar / Editar Produto</h1>
+    <form id="form-produto" class="space-y-4">
+      <input type="hidden" id="id" />
+      <input type="text" id="nome" placeholder="Nome do produto" class="w-full border px-4 py-2 rounded" required>
+      <input type="number" id="preco" placeholder="Preço" class="w-full border px-4 py-2 rounded" required>
+      <select id="categoria" class="w-full border px-4 py-2 rounded" required>
+        <option value="">Selecione a categoria</option>
+        <option value="masculino">Masculino</option>
+        <option value="feminino">Feminino</option>
+        <option value="acessorios">Acessórios</option>
+      </select>
+      <textarea id="descricao" placeholder="Descrição" class="w-full border px-4 py-2 rounded" required></textarea>
+      <input type="url" id="imagem-url" placeholder="URL da imagem" class="w-full border px-4 py-2 rounded">
+      <button type="button" onclick="adicionarImagem()" class="btn">Adicionar Imagem</button>
+      <div id="imagens-lista" class="flex flex-wrap gap-2 mt-2"></div>
+      <button type="submit" class="btn btn-primary">Salvar Produto</button>
+    </form>
+
+    <section class="mt-10">
+      <h2 class="text-xl font-semibold mb-4">Produtos Cadastrados</h2>
+      <div id="produtos-lista" class="space-y-4"></div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-200 py-6 mt-10 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    // Menu dinâmico de login/logout
+    document.addEventListener('DOMContentLoaded', () => {
+      function logout() {
+        localStorage.removeItem('usuario_logado');
+        window.location.href = 'login.html';
+      }
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      menu.innerHTML = `
+        <span class="text-gray-700">Olá, ${user.nome.split(' ')[0]}</span>
+        <a href="#" onclick="logout()" class="text-red-600 hover:underline ml-2">Sair</a>
+      `;
+    });
+
+    // Lógica de cadastro/edição de produtos
+    const form = document.getElementById('form-produto');
+    const imagensLista = document.getElementById('imagens-lista');
+    const listaProdutos = document.getElementById('produtos-lista');
+    let imagens = [];
+
+    function carregarProdutos() {
+      const produtos = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      listaProdutos.innerHTML = '';
+      produtos.forEach(prod => {
+        const div = document.createElement('div');
+        div.className = 'p-4 border rounded flex justify-between items-center bg-gray-50 shadow-sm';
+        div.innerHTML = `
+          <div>
+            <h3 class="font-semibold text-lg">${prod.nome}</h3>
+            <p class="text-sm text-gray-600">R$ ${prod.preco.toFixed(2)} — ${prod.categoria}</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editarProduto(${prod.id})" class="btn">Editar</button>
+            <button onclick="excluirProduto(${prod.id})" class="btn btn-primary">Excluir</button>
+          </div>
+        `;
+        listaProdutos.appendChild(div);
+      });
+    }
+
+    function adicionarImagem() {
+      const url = document.getElementById('imagem-url').value.trim();
+      if (!url) return;
+      imagens.push(url);
+      const thumb = document.createElement('img');
+      thumb.src = url;
+      thumb.className = 'w-16 h-16 object-cover rounded border';
+      imagensLista.appendChild(thumb);
+      document.getElementById('imagem-url').value = '';
+    }
+
+    function editarProduto(id) {
+      const produtos = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      const prod = produtos.find(p => p.id === id);
+      if (!prod) return;
+      document.getElementById('id').value = prod.id;
+      document.getElementById('nome').value = prod.nome;
+      document.getElementById('preco').value = prod.preco;
+      document.getElementById('categoria').value = prod.categoria;
+      document.getElementById('descricao').value = prod.descricao;
+      imagens = [...prod.imagens];
+      imagensLista.innerHTML = '';
+      imagens.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'w-16 h-16 object-cover rounded border';
+        imagensLista.appendChild(img);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function excluirProduto(id) {
+      let produtos = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      produtos = produtos.filter(p => p.id !== id);
+      localStorage.setItem('produtos_custom', JSON.stringify(produtos));
+      carregarProdutos();
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const idInput = document.getElementById('id').value;
+      const nome = document.getElementById('nome').value;
+      const preco = parseFloat(document.getElementById('preco').value);
+      const categoria = document.getElementById('categoria').value;
+      const descricao = document.getElementById('descricao').value;
+      let produtos = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      if (idInput) {
+        const idx = produtos.findIndex(p => p.id == idInput);
+        produtos[idx] = { id: parseInt(idInput), nome, preco, categoria, descricao, imagens: [...imagens] };
+      } else {
+        produtos.push({ id: Date.now(), nome, preco, categoria, descricao, imagens: [...imagens] });
+      }
+      localStorage.setItem('produtos_custom', JSON.stringify(produtos));
+      form.reset(); imagens = []; imagensLista.innerHTML = '';
+      carregarProdutos();
+    });
+
+    carregarProdutos();
+  </script>
+</body>
+</html>

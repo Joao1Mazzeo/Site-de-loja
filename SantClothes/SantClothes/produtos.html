@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produtos - SantClothes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Scripts de produtos e contadores -->
+  <script src="js/produto.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-white text-gray-900">
+
+  <!-- Header com menu dinâmico -->
+  <header class="bg-gray-100 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-black font-bold underline">Produtos <span id="cart-count"></span></a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">Wishlist <span id="wishlist-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Lista de produtos -->
+  <main class="max-w-7xl mx-auto py-12 px-4">
+    <h2 class="text-3xl font-bold mb-8 text-center">Todos os Produtos</h2>
+    <div id="produtos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </main>
+
+  <footer class="bg-gray-100 py-6 mt-10 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Menu dinâmico de login/logout
+      function logout() {
+        localStorage.removeItem('usuario_logado');
+        window.location.reload();
+      }
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (menu) {
+        menu.innerHTML = user
+          ? `<span class="text-gray-700">Olá, ${user.nome.split(' ')[0]}</span><a href="#" onclick="logout()" class="text-red-600 hover:underline ml-2">Sair</a>`
+          : `<a href="login.html" class="text-gray-700 hover:text-black">Login</a><a href="cadastro.html" class="text-gray-700 hover:text-black ml-4">Cadastro</a>`;
+      }
+
+      // Monta array de produtos (custom + default)
+      const custom = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      const allProducts = [...custom, ...(window.produtos || [])];
+
+      // Filtra categoria via query string
+      const params = new URLSearchParams(window.location.search);
+      const filtro = params.get('cat');
+      const lista = filtro
+        ? allProducts.filter(p => p.categoria === filtro)
+        : allProducts;
+
+      // Renderiza cards
+      const container = document.getElementById('produtos-container');
+      container.innerHTML = '';
+      lista.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'border p-4 rounded shadow hover:shadow-md transition relative product-card';
+        card.innerHTML = `
+          <a href="produto.html?id=${prod.id}" class="block mb-4">
+            <img src="${prod.imagens[0]}" alt="${prod.nome}" class="w-full h-48 object-cover rounded" />
+          </a>
+          <h3 class="text-lg font-semibold mb-1">${prod.nome}</h3>
+          <p class="text-gray-700 font-medium mb-2">R$ ${prod.preco.toFixed(2)}</p>
+          <button onclick="adicionarAoCarrinho(${prod.id})" class="btn btn-primary w-full">Adicionar ao Carrinho</button>
+        `;
+        container.appendChild(card);
+      });
+
+      // Atualiza contador de carrinho e wishlist
+      window.atualizarContador();
+      window.renderWishlistCount();
+    });
+  </script>
+</body>
+</html>

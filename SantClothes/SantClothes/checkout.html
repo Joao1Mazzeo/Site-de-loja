@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Minha Loja</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Badge de carrinho e wishlist -->
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Header padrão -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">Wishlist <span id="wishlist-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-10 px-4 bg-white rounded shadow mt-8">
+    <form class="space-y-6">
+      <h2 class="text-xl font-semibold mb-2">Informações de Entrega</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" placeholder="Nome completo" id="nome-entrega" class="border px-4 py-2 rounded" required />
+        <input type="email" placeholder="E-mail" id="email-entrega" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="Endereço" class="border px-4 py-2 rounded col-span-2" required />
+        <input type="text" placeholder="Cidade" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="Estado" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="CEP" class="border px-4 py-2 rounded" required />
+      </div>
+
+      <h2 class="text-xl font-semibold mt-6 mb-2">Pagamento</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" placeholder="Número do Cartão" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="Nome no Cartão" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="Validade (MM/AA)" class="border px-4 py-2 rounded" required />
+        <input type="text" placeholder="CVV" class="border px-4 py-2 rounded" required />
+      </div>
+
+      <div class="text-right text-lg font-semibold mt-6">
+        <p>Subtotal: R$ <span id="checkout-subtotal">0.00</span></p>
+        <p>Frete: R$ <span id="checkout-frete">0.00</span></p>
+        <p id="checkout-cupom" class="text-green-700 text-sm mt-1"></p>
+        <p class="text-xl mt-2">Total: R$ <span id="checkout-total">0.00</span></p>
+      </div>
+
+      <div class="text-right mt-8">
+        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition">Confirmar Pedido</button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="bg-gray-200 py-6 mt-10 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Menu dinâmico
+      function logout() {
+        localStorage.removeItem('usuario_logado');
+        window.location.href = 'index.html';
+      }
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (menu) {
+        menu.innerHTML = user
+          ? `<span class=\"text-gray-700\">Olá, ${user.nome.split(' ')[0]}</span><a href=\"#\" onclick=\"logout()\" class=\"text-red-600 hover:underline ml-2\">Sair</a>`
+          : `<a href=\"login.html\" class=\"text-gray-700 hover:text-black\">Login</a><a href=\"cadastro.html\" class=\"text-gray-700 hover:text-black ml-4\">Cadastro</a>`;
+      }
+
+      // Preenche valores de checkout
+      const subtotal = localStorage.getItem('checkout_subtotal') || '0.00';
+      const frete = localStorage.getItem('checkout_frete') || '0.00';
+      const total = localStorage.getItem('checkout_total') || '0.00';
+      const cupom = localStorage.getItem('cupom_aplicado') || '';
+      document.getElementById('checkout-subtotal').textContent = subtotal;
+      document.getElementById('checkout-frete').textContent = frete;
+      document.getElementById('checkout-total').textContent = total;
+      if (cupom) {
+        document.getElementById('checkout-cupom').textContent = `Cupom aplicado: ${cupom}`;
+      }
+
+      // Form submit
+      const form = document.querySelector('form');
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (!user) {
+          alert('Você precisa estar logado para finalizar.');
+          window.location.href = 'login.html';
+          return;
+        }
+        const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+        const itens = JSON.parse(localStorage.getItem('carrinho') || '[]');
+        const novo = {
+          id: pedidos.length + 1,
+          email: user.email,
+          data: new Date().toISOString(),
+          status: 'Aguardando pagamento',
+          total: parseFloat(total),
+          itens
+        };
+        pedidos.push(novo);
+        localStorage.setItem('pedidos', JSON.stringify(pedidos));
+        localStorage.removeItem('carrinho');
+        localStorage.removeItem('checkout_subtotal');
+        localStorage.removeItem('checkout_frete');
+        localStorage.removeItem('checkout_total');
+        localStorage.removeItem('cupom_aplicado');
+        alert('Pedido realizado com sucesso!');
+        window.location.href = 'pedidos.html';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalhes do Produto - SantClothes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Scripts de produtos e contadores -->
+  <script src="js/produto.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Header dinâmico -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">Wishlist <span id="wishlist-count"></span></a>
+        <div id="menu-login"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto py-12 px-4">
+    <div id="produto" class="grid md:grid-cols-2 gap-10 items-start"></div>
+    <section id="relacionados" class="mt-16">
+      <h3 class="text-2xl font-semibold mb-6">Produtos Relacionados</h3>
+      <div id="prod-rel" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+    <section id="avaliacoes" class="mt-16">
+      <h3 class="text-2xl font-semibold mb-4">Avaliações de Clientes</h3>
+      <form id="form-avaliacao" class="space-y-4">
+        <label for="nome-avaliador" class="block font-medium">Seu nome (opcional):</label>
+        <input type="text" id="nome-avaliador" placeholder="Seu nome (opcional)" class="border px-4 py-2 rounded w-full md:w-1/2" />
+        <span class="block font-medium">Sua Avaliação:</span>
+        <div id="estrelas" class="flex gap-1 text-yellow-500 text-2xl cursor-pointer" data-nota="0"></div>
+        <label for="comentario-avaliador" class="block font-medium">Comentário:</label>
+        <textarea id="comentario-avaliador" rows="4" class="border px-4 py-2 rounded w-full" placeholder="Deixe seu comentário..."></textarea>
+        <button type="submit" class="btn btn-primary">Enviar Avaliação</button>
+      </form>
+      <div id="lista-avaliacoes" class="mt-8 space-y-4"></div>
+    </section>
+    <section id="frete" class="mt-16">
+      <h3 class="text-2xl font-semibold mb-4">Calcular Frete</h3>
+      <label for="cep" class="block mb-1 font-medium">Informe seu CEP:</label>
+      <div class="flex gap-2">
+        <input id="cep" type="text" maxlength="8" placeholder="Digite seu CEP" class="border px-4 py-2 rounded w-full md:w-64" />
+        <button id="btn-frete" class="btn">Calcular</button>
+      </div>
+      <p id="frete-info" class="mt-2 text-sm text-green-700"></p>
+    </section>
+  </main>
+
+  <footer class="bg-gray-100 py-6 mt-10 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Menu dinâmico
+      function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'index.html'; }
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (!user) { window.location.href = 'login.html'; return; }
+      menu.innerHTML = user ? `<span class="text-gray-700">Olá, ${user.nome.split(' ')[0]}</span><a href="#" onclick="logout()" class="text-red-600 hover:underline ml-2">Sair</a>` : '';
+
+      // Carrega produtos custom + padrão
+      const custom = JSON.parse(localStorage.getItem('produtos_custom') || '[]');
+      const allProducts = [...custom, ...(window.produtos || [])];
+
+      // Obtém ID e encontra produto
+      const params = new URLSearchParams(window.location.search);
+      const id = parseInt(params.get('id'), 10);
+      const produto = allProducts.find(p => p.id === id);
+      if (!produto) {
+        document.getElementById('produto').innerHTML = '<p class="text-center col-span-2 text-gray-600">Produto não encontrado.</p>';
+        return;
+      }
+
+      // Render produto
+      const placeholder = 'https://placehold.co/450x450?text=Imagem+indisponível';
+      const thumbs = produto.imagens.map(url => `<img src="${url}" onerror="this.onerror=null;this.src='${placeholder}'" class="w-16 h-16 object-cover border rounded cursor-pointer hover:scale-105 transition" onclick="document.getElementById('main-img').src=this.src" />`).join('');
+      document.getElementById('produto').innerHTML = `
+        <div class="space-y-4">
+          <img id="main-img" src="${produto.imagens[0]}" onerror="this.onerror=null;this.src='${placeholder}'" alt="${produto.nome}" class="rounded border-2 border-yellow-900 shadow w-full max-h-[450px] object-contain" />
+          <div class="flex gap-2 overflow-x-auto">${thumbs}</div>
+        </div>
+        <div class="space-y-4">
+          <h2 class="text-3xl font-bold">${produto.nome}</h2>
+          <p class="text-2xl text-yellow-800 font-semibold">R$ ${produto.preco.toFixed(2)}</p>
+          <p class="text-gray-700 leading-relaxed">${produto.descricao}</p>
+          <div class="flex items-center gap-2">
+            <label for="qtd" class="text-sm">Quantidade:</label>
+            <input type="number" id="qtd" value="1" min="1" class="w-16 border rounded px-2 py-1" />
+          </div>
+          <button onclick="(() => { for(let i=0;i<parseInt(document.getElementById('qtd').value)||1;i++) adicionarAoCarrinho(${produto.id}); })()" class="btn btn-primary px-6 py-2">Adicionar ao Carrinho</button>
+        </div>
+      `;
+
+      // Render relacionados (mesma categoria)
+      const relacionados = allProducts.filter(p => p.categoria === produto.categoria && p.id !== produto.id);
+      const prodRel = document.getElementById('prod-rel');
+      relacionados.slice(0, 4).forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'border p-2 rounded shadow hover:shadow-md transition bg-white';
+        card.innerHTML = `
+          <a href="produto.html?id=${p.id}" class="block">
+            <img src="${p.imagens[0]}" onerror="this.onerror=null;this.src='${placeholder}'" class="h-40 w-full object-cover rounded mb-2" alt="${p.nome}" />
+            <h4 class="text-center font-medium">${p.nome}</h4>
+            <p class="text-center text-sm text-gray-600">R$ ${p.preco.toFixed(2)}</p>
+          </a>
+        `;
+        prodRel.appendChild(card);
+      });
+
+      // Avaliações
+      function renderEstrelas(nota=0) {
+        const est = document.getElementById('estrelas'); est.innerHTML = ''; est.dataset.nota = nota;
+        for(let i=1;i<=5;i++){ const span = document.createElement('span'); span.textContent = i<=nota?'★':'☆'; span.onclick=() => renderEstrelas(i); est.appendChild(span);} }
+      function mostrarAvaliacoes() {
+        const avaliacoes = JSON.parse(localStorage.getItem('avaliacoes')||'[]').filter(a=>a.idProduto===produto.id);
+        const cont = document.getElementById('lista-avaliacoes'); cont.innerHTML='';
+        if(!avaliacoes.length) cont.innerHTML='<p class="text-gray-500">Nenhuma avaliação ainda.</p>';
+        avaliacoes.forEach(a=>{
+          const div=document.createElement('div'); div.className='p-4 border rounded shadow-sm';
+          const stars='★'.repeat(a.nota)+'☆'.repeat(5-a.nota);
+          div.innerHTML=`<p class="font-semibold text-yellow-600">${stars}</p><p class="text-gray-800">${a.comentario}</p><p class="text-sm text-gray-500">${a.nome||'Anônimo'} — ${new Date(a.data).toLocaleDateString()}</p>`;
+          cont.appendChild(div);
+        });
+      }
+      function salvarAvaliacao(e) {
+        e.preventDefault(); const nota=parseInt(document.getElementById('estrelas').dataset.nota)||0;
+        const comentario=document.getElementById('comentario-avaliador').value.trim();
+        if(!nota||!comentario){ alert('Por favor, escreva um comentário e selecione uma nota!'); return; }
+        const nome=document.getElementById('nome-avaliador').value.trim();
+        const avals=JSON.parse(localStorage.getItem('avaliacoes')||'[]');
+        avals.push({ idProduto:produto.id,nome,nota,comentario,data:new Date().toISOString()});
+        localStorage.setItem('avaliacoes',JSON.stringify(avals));
+        renderEstrelas(0); mostrarAvaliacoes(); document.getElementById('form-avaliacao').reset();
+      }
+      renderEstrelas(); mostrarAvaliacoes(); document.getElementById('form-avaliacao').addEventListener('submit', salvarAvaliacao);
+
+      // Calcular frete
+      document.getElementById('btn-frete').addEventListener('click',async e=>{
+        e.preventDefault(); const cep=document.getElementById('cep').value.trim();
+        const res=await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data=res.ok?await res.json():null;
+        document.getElementById('frete-info').textContent = data? `Frete para ${data.localidade} - ${data.uf} calculado.` : 'CEP inválido.';
+      });
+
+      // Atualiza badges
+      window.atualizarContador(); window.renderWishlistCount();
+    });
+  </script>
+</body>
+</html>

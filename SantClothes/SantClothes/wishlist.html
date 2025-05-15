@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Wishlist - SantClothes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Header padrão com contador de wishlist -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">
+          Wishlist <span id="wishlist-count" class="text-red-500"></span>
+        </a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6">Minha Wishlist</h2>
+    <div id="wishlist-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Os produtos serão renderizados pelo script -->
+    </div>
+  </main>
+
+  <script src="js/produto.js" defer></script>
+  <script src="js/script.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('wishlist-container');
+      const items = wishlist.map(id => produtos.find(p => p.id === id)).filter(Boolean);
+      if (items.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">Sua wishlist está vazia.</p>';
+      } else {
+        container.innerHTML = items.map(p => `
+          <div class="border p-4 rounded shadow relative bg-white">
+            <button class="wishlist-btn absolute top-2 right-2 text-xl text-red-500" data-id="${p.id}" onclick="toggleWishlist(${p.id}); this.closest('div').remove();">
+              ♥
+            </button>
+            <a href="produto.html?id=${p.id}">
+              <img src="${p.imagens[0]}" alt="${p.nome}" class="w-full h-48 object-cover rounded mb-2" />
+            </a>
+            <h3 class="font-semibold">${p.nome}</h3>
+            <p>R$ ${p.preco.toFixed(2)}</p>
+          </div>
+        `).join('');
+      }
+      // Atualiza contadores
+      renderWishlistCount();
+      atualizarContador();
+    });
+  </script>
+</body>
+</html>

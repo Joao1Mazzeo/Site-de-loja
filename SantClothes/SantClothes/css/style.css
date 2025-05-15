@@ -1,0 +1,128 @@
+/* style.css - Tema Vitoriano Moderno Atualizado */
+
+:root {
+  --color-bg: #f9f6f1;
+  --color-text: #1a1a1a;
+  --color-primary: #bfa87e;
+  --color-secondary: #4a3f35;
+  --color-accent: #c28840;
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'EB Garamond', serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 1px;
+  color: var(--color-secondary);
+  margin-bottom: 1rem;
+}
+
+/* Botões e Combos */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-secondary);
+  border-radius: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  background-color: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--color-secondary);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn:hover {
+  background-color: #fff;
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+/* Badge promocional */
+.badge {
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+
+/* Links */
+a {
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+/* Inputs */
+input,
+textarea {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  transition: var(--transition);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 2px rgba(191, 168, 126, 0.3);
+  outline: none;
+}
+
+/* Cartões de Produto */
+.product-card {
+  border: 1px solid var(--color-primary);
+  background-color: #fffaf0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 10px rgba(191, 168, 126, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px) rotate(-1deg);
+}
+
+/* Combos de Estilo */
+.combo-card {
+  background-color: var(--color-bg);
+  border: 1px dashed var(--color-accent);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: var(--transition);
+}
+
+.combo-card:hover {
+  background-color: #fff;
+  border-color: var(--color-secondary);
+}
+
+/* Imagens */
+img {
+  border: 2px solid var(--color-accent);
+  border-radius: 0.25rem;
+  ;
+}
+
+ #foto1 {
+  background-size: cover;
+ }

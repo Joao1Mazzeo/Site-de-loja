@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SantClothes - Moda Jovem e Atemporal</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Autocomplete de busca -->
+  <script src="js/search.js" defer></script>
+  <!-- Badge de carrinho e wishlist -->
+  <script src="js/script.js" defer></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+  <!-- Header com menu dinâmico e busca -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <h1 class="text-2xl font-bold text-yellow-800">SantClothes</h1>
+      <!-- Busca Autocomplete -->
+      <div class="relative max-w-md">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Buscar produtos..."
+          class="w-full border px-4 py-2 rounded"
+          autocomplete="off"
+        />
+        <ul
+          id="search-suggestions"
+          class="absolute bg-white border w-full mt-1 rounded shadow z-10 hidden"
+        ></ul>
+      </div>
+      <nav class="space-x-4 hidden md:flex items-center">
+        <a href="index.html" class="text-gray-700 hover:text-black">Home</a>
+        <a href="produtos.html" class="text-gray-700 hover:text-black">Produtos</a>
+        <a href="carrinho.html" class="text-gray-700 hover:text-black">Carrinho <span id="cart-count"></span></a>
+        <a href="wishlist.html" class="text-gray-700 hover:text-black">Wishlist <span id="wishlist-count"></span></a>
+        <div id="menu-login" class="inline-block"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Carousel de Destaques -->
+  <section id="hero-carousel" class="relative overflow-hidden">
+    <div class="carousel-slides relative h-64 md:h-96">
+      <!-- Slide 1 -->
+      <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-100">
+        <img src="outono.jpg" alt="Promoção 1" class="w-full h-full object-cover" id="foto1" />
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center">
+          <h2 class="text-white text-3xl md:text-5xl font-bold mb-4">Promoção Especial</h2>
+          <a href="produtos.html" class="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600">Compre Agora</a>
+        </div>
+      </div>
+      <!-- Slide 2 -->
+      <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-0">
+        <img src="https://placehold.co/1200x400?text=Lançamento+Outono" alt="Lançamento Outono" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center">
+          <h2 class="text-white text-3xl md:text-5xl font-bold mb-4">Coleção Outono</h2>
+          <a href="produtos.html?cat=feminino" class="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600">Veja a Coleção</a>
+        </div>
+      </div>
+      <!-- Slide 3 -->
+      <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-0">
+        <img src="https://placehold.co/1200x400?text=Frete+Grátis" alt="Frete Grátis" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center">
+          <h2 class="text-white text-3xl md:text-5xl font-bold mb-4">Frete Grátis</h2>
+          <a href="produtos.html" class="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600">Confira</a>
+        </div>
+      </div>
+    </div>
+    <!-- Navegação do carousel -->
+    <button id="prev-slide" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75">❮</button>
+    <button id="next-slide" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75">❯</button>
+  </section>
+
+  <!-- Scripts do carousel e menu -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Carousel
+      const slides = document.querySelectorAll('#hero-carousel .slide');
+      let current = 0;
+      const total = slides.length;
+      const showSlide = idx => {
+        slides.forEach((s, i) => s.style.opacity = i === idx ? '1' : '0');
+      };
+      document.getElementById('next-slide').addEventListener('click', () => {
+        current = (current + 1) % total; showSlide(current);
+      });
+      document.getElementById('prev-slide').addEventListener('click', () => {
+        current = (current - 1 + total) % total; showSlide(current);
+      });
+      setInterval(() => { current = (current + 1) % total; showSlide(current); }, 5000);
+
+      // Menu dinâmico de login/logout
+      function logout() {
+        localStorage.removeItem('usuario_logado');
+        window.location.reload();
+      }
+      const menu = document.getElementById('menu-login');
+      const user = JSON.parse(localStorage.getItem('usuario_logado'));
+      if (menu) {
+        menu.innerHTML = user
+          ? `<span class="text-gray-700">Olá, ${user.nome.split(' ')[0]}</span><a href="#" onclick="logout()" class="text-red-600 hover:underline ml-2">Sair</a>`
+          : `<a href="login.html" class="text-gray-700 hover:text-black">Login</a><a href="cadastro.html" class="text-gray-700 hover:text-black ml-4">Cadastro</a>`;
+      }
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 mt-10 py-6 text-center text-sm text-gray-600">
+    © 2025 SantClothes. Todos os direitos reservados.
+  </footer>
+</body>
+</html>
